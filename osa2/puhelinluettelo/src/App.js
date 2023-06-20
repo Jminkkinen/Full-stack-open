@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import personsService from './services/persons'
 
 const Filter = (props) => {
   return(
@@ -34,15 +35,27 @@ const PersonForm = (props) => {
   )
 }
 
-const Person = ({person}) => {
+const Person = ({person, personsToShow}) => {
+
+  const removePerson = (event) => {
+    event.preventDefault()
+    personsService
+    .remove(person.id)
+    // .then(response => {
+    //   setPersons(persons.map(person => person.id !== id))
+    // })
+  }
+
   return(
-      <p>{person.name} {person.number}</p>
+    <form onSubmit={removePerson}>
+      <p>{person.name} {person.number} <button type="submit">delete</button></p>
+    </form>
   )
 }
 
 const Persons = ({personsToShow}) => {
   return(
-    personsToShow.map((person) => <Person key={person.id} person={person} />
+    personsToShow.map((person) => <Person key={person.id} person={person} personsToShow={personsToShow} />
     )
   )
 }
@@ -54,19 +67,13 @@ const App = () => {
 
   const [filterPerson, setFilterPerson] = useState('')
 
-  const hook = () => {
-    console.log('effect')
-    axios
-      .get('http://localhost:3001/persons')
+  useEffect(() => {
+    personsService
+      .getAll()
       .then(response => {
-        console.log('promise fulfilled')
         setPersons(response.data)
       })
-  }
-  
-  useEffect(hook, [])
-
-  console.log('render', persons.length, 'persons')
+  }, [])
 
   const addPerson = (event) => {
     event.preventDefault()
@@ -81,14 +88,13 @@ const App = () => {
       alert(`${newName} is already added to phonebook`)
     }
     else {
-      axios
-      .post('http://localhost:3001/persons', personObject)
+      personsService
+      .create(personObject)
       .then(response => {
-        console.log(response)
+        setPersons(persons.concat(response.data))
+        setNewName('')
+        setNewNumber('')
       })
-      setPersons(persons.concat(personObject))
-      setNewName('')
-      setNewNumber('')
     }
   }
 
