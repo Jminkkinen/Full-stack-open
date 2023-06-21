@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import personsService from './services/persons'
 
 const Filter = (props) => {
@@ -39,8 +38,15 @@ const Person = ({person, personsToShow}) => {
 
   const removePerson = (event) => {
     event.preventDefault()
-    personsService
-    .remove(person.id)
+    if (window.confirm(`Delete ${person.name} ?`)) {
+      personsService
+      .remove(person.id)
+      // .then(response => {
+      //   personsToShow.remove(person.id)
+      // })
+    }
+    // personsService
+    // .remove(person.id)
     // .then(response => {
     //   setPersons(persons.map(person => person.id !== id))
     // })
