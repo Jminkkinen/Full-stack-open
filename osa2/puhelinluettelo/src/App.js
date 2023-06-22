@@ -12,6 +12,17 @@ const Filter = (props) => {
   )
 }
 
+const Notification = ({ message }) => {
+  if (message === null) {
+    return null
+  }
+  return (
+    <div className="added">
+      {message}
+    </div>
+  )
+}
+
 const PersonForm = (props) => {
   return(
     <form onSubmit={props.addPerson}>
@@ -34,22 +45,19 @@ const PersonForm = (props) => {
   )
 }
 
-const Person = ({person, personsToShow}) => {
+const Person = ({person, personsToShow, persons, setPersons, setNotification}) => {
 
+  const id = person.id
   const removePerson = (event) => {
-    event.preventDefault()
     if (window.confirm(`Delete ${person.name} ?`)) {
       personsService
       .remove(person.id)
-      // .then(response => {
-      //   personsToShow.remove(person.id)
-      // })
+      .then(() => {
+        setPersons(persons.filter((person) => id !== person.id));
+        setNotification(`Removed ${person.name}`)
+        setTimeout(() => {setNotification(null)}, 5000)
+      })
     }
-    // personsService
-    // .remove(person.id)
-    // .then(response => {
-    //   setPersons(persons.map(person => person.id !== id))
-    // })
   }
 
   return(
@@ -59,19 +67,18 @@ const Person = ({person, personsToShow}) => {
   )
 }
 
-const Persons = ({personsToShow}) => {
+const Persons = ({personsToShow, persons, setPersons, setNotification}) => {
   return(
-    personsToShow.map((person) => <Person key={person.id} person={person} personsToShow={personsToShow} />
+    personsToShow.map((person) => <Person key={person.id} person={person} personsToShow={personsToShow} persons={persons} setPersons={setPersons}/>
     )
   )
 }
 const App = () => {
   const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
-
   const [newNumber, setNewNumber] = useState('')
-
   const [filterPerson, setFilterPerson] = useState('')
+  const [notification, setNotification] = useState(null)
 
   useEffect(() => {
     personsService
@@ -90,14 +97,24 @@ const App = () => {
 
     const tuplikaatti = persons.map(person => person.name).includes(personObject.name)
 
+    const tupla = persons.filter(person => personObject.name === person.name)
+
     if(tuplikaatti === true) {
-      alert(`${newName} is already added to phonebook`)
+      if (window.confirm(`${newName} is already in the phonebook, replace old number with a new one?`)) {
+        personsService
+          .update(tupla[0].id, personObject)
+          .then(response => {
+            setPersons(persons.map(person => person.id !== tupla[0].id ? person : response.data))
+          })
+      }
     }
     else {
       personsService
       .create(personObject)
       .then(response => {
         setPersons(persons.concat(response.data))
+        setNotification(`Added ${personObject.name}`)
+        setTimeout(() => {setNotification(null)}, 5000)
         setNewName('')
         setNewNumber('')
       })
@@ -105,12 +122,10 @@ const App = () => {
   }
 
   const handleNameChange = (event) => {
-    console.log(event.target.value)
     setNewName(event.target.value)
   }
 
   const handleNumberChange = (event) => {
-    console.log(event.target.value)
     setNewNumber(event.target.value)
   }
 
@@ -123,6 +138,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={notification} />
       <Filter filterPerson={filterPerson} handleFilterChange={handleFilterChange} />
       <h3>add a new</h3>
       <PersonForm 
@@ -133,7 +149,7 @@ const App = () => {
         handleNumberChange={handleNumberChange}
       />
       <h3>Numbers</h3>
-      <Persons personsToShow={personsToShow} />
+      <Persons personsToShow={personsToShow} persons={persons} setPersons={setPersons} setNotification={setNotification} />
     </div>
   )
 
