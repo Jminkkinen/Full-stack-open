@@ -1,7 +1,6 @@
 
-.added {
+.action {
   width: fit-content;
-  /* text-align: center; */
   color: rgb(11, 85, 11);
   background: rgb(115, 223, 115);
   font-family: Arial, Helvetica, sans-serif;
@@ -9,6 +8,20 @@
   font-size: 25px;
   border-style: groove;
   border-color: rgb(13, 66, 13);
+  border-radius: 5px;
+  padding: 5px;
+  margin-bottom: 20px;
+}
+
+.error {
+  width: fit-content;
+  color: rgb(76, 12, 12);
+  background: rgb(210, 121, 113);
+  font-family: Arial, Helvetica, sans-serif;
+  font-style: bold;
+  font-size: 25px;
+  border-style: groove;
+  border-color: rgb(82, 13, 13);
   border-radius: 5px;
   padding: 5px;
   margin-bottom: 20px;

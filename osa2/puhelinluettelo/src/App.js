@@ -12,12 +12,23 @@ const Filter = (props) => {
   )
 }
 
-const Notification = ({ message }) => {
+const Notification = ({message}) => {
   if (message === null) {
     return null
   }
   return (
-    <div className="added">
+    <div className="action">
+      {message}
+    </div>
+  )
+}
+
+const Errormessage = ({message}) => {
+  if (message === null) {
+    return null
+  }
+  return (
+    <div className ="error">
       {message}
     </div>
   )
@@ -45,31 +56,35 @@ const PersonForm = (props) => {
   )
 }
 
-const Person = ({person, personsToShow, persons, setPersons, setNotification}) => {
+const Person = ({person, persons, setPersons, setNotification}) => {
 
   const id = person.id
-  const removePerson = (event) => {
+  const name = person.name
+  const removePerson = (id) => {
     if (window.confirm(`Delete ${person.name} ?`)) {
       personsService
-      .remove(person.id)
+      .remove(id)
       .then(() => {
         setPersons(persons.filter((person) => id !== person.id));
-        setNotification(`Removed ${person.name}`)
+        setNotification(`Removed ${name}`)
         setTimeout(() => {setNotification(null)}, 5000)
       })
     }
   }
 
   return(
-    <form onSubmit={removePerson}>
-      <p>{person.name} {person.number} <button type="submit">delete</button></p>
-    </form>
+      <p>{person.name} {person.number} <button onClick={() => removePerson(id)}>delete</button></p>
   )
 }
 
 const Persons = ({personsToShow, persons, setPersons, setNotification}) => {
   return(
-    personsToShow.map((person) => <Person key={person.id} person={person} personsToShow={personsToShow} persons={persons} setPersons={setPersons}/>
+    personsToShow.map((person) => <Person 
+    key={person.id}
+    person={person}
+    persons={persons}
+    setPersons={setPersons}
+    setNotification={setNotification} />
     )
   )
 }
@@ -79,6 +94,7 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [filterPerson, setFilterPerson] = useState('')
   const [notification, setNotification] = useState(null)
+  const [errormessage, setErrormessage] = useState(null)
 
   useEffect(() => {
     personsService
@@ -105,6 +121,15 @@ const App = () => {
           .update(tupla[0].id, personObject)
           .then(response => {
             setPersons(persons.map(person => person.id !== tupla[0].id ? person : response.data))
+            setNotification(`Changed ${newName}'s phone number`)
+            setTimeout(() => {setNotification(null)}, 5000)
+            setNewName('')
+            setNewNumber('')
+          })
+          .catch((error) => {
+            console.log('fail')
+            setErrormessage(`${newName} has already been removed from server`);
+            setTimeout(() => {setErrormessage(null)}, 5000)
           })
       }
     }
@@ -139,6 +164,7 @@ const App = () => {
     <div>
       <h2>Phonebook</h2>
       <Notification message={notification} />
+      <Errormessage message={errormessage} />
       <Filter filterPerson={filterPerson} handleFilterChange={handleFilterChange} />
       <h3>add a new</h3>
       <PersonForm 
