@@ -6,7 +6,7 @@ const allcountries = 'https://studies.cs.helsinki.fi/restcountries/api/all'
 const Filter = (props) => {
   return(
       <div>
-      filter shown with: <input 
+      find countries: <input 
         value={props.filterCountry}
         onChange={props.handleFilterChange}
       />
@@ -14,18 +14,43 @@ const Filter = (props) => {
   )
 }
 
+const Countryinfo = ({country}) => {
+  const languages = Object.values(country.languages)
+  return(
+    <div>
+      <h2>{country.name.common}</h2>
+      <div>{country.capital}</div>
+      <div>Area {country.area}</div>
+      <p><b>languages</b></p>
+      {languages.map(language => <div>&bull; {language}</div>)}
+    </div>
+  )
+}
+
 const Country = ({country}) => {
 
   return(
-      <div>{country} </div>
+      <div>{country}</div>
   )
 }
 
 const Countries = ({countriesToShow, countries, setCountries}) => {
-  return(
-    countriesToShow.map((country) => <Country key={country.name.common} country={country.name.common} />
+  console.log(countriesToShow.length)
+  if (countriesToShow.length < 2) {
+    return(
+      countriesToShow.map((country) => <Countryinfo key={country.name.common} country={country} />
+      )
     )
-  )
+  }
+  else if(countriesToShow.length < 11) {
+    return(
+      countriesToShow.map((country) => <Country key={country.name.common} country={country.name.common} />
+      )
+    )
+  }
+  else {
+    return("Too many matches, specify another filter")
+  }
 }
 
 const App = () => {
