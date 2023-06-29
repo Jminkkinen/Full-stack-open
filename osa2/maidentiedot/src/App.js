@@ -16,6 +16,7 @@ const Filter = (props) => {
 
 const Countryinfo = ({country}) => {
   const languages = Object.values(country.languages)
+  const flag = country.flags.png
   return(
     <div>
       <h2>{country.name.common}</h2>
@@ -23,18 +24,19 @@ const Countryinfo = ({country}) => {
       <div>Area {country.area}</div>
       <p><b>languages</b></p>
       {languages.map(language => <div>&bull; {language}</div>)}
+      <p><img src={flag}/></p>
     </div>
   )
 }
 
-const Country = ({country}) => {
+const Country = ({country, setFilterCountry}) => {
 
   return(
-      <div>{country}</div>
+      <div>{country.name.common} <button onClick={() => setFilterCountry(country.name.common)}>show</button></div>
   )
 }
 
-const Countries = ({countriesToShow, countries, setCountries}) => {
+const Countries = ({countriesToShow, countries, setCountries, setFilterCountry}) => {
   console.log(countriesToShow.length)
   if (countriesToShow.length < 2) {
     return(
@@ -44,7 +46,7 @@ const Countries = ({countriesToShow, countries, setCountries}) => {
   }
   else if(countriesToShow.length < 11) {
     return(
-      countriesToShow.map((country) => <Country key={country.name.common} country={country.name.common} />
+      countriesToShow.map((country) => <Country key={country.name.common} country={country} setFilterCountry={setFilterCountry} />
       )
     )
   }
@@ -74,7 +76,7 @@ const App = () => {
   return (
     <div>
       <Filter filterCountry={filterCountry} handleFilterChange={handleFilterChange} />
-      <Countries countriesToShow={countriesToShow} countries={countries} setCountries={setCountries} />
+      <Countries countriesToShow={countriesToShow} countries={countries} setCountries={setCountries} setFilterCountry={setFilterCountry}/>
     </div>
   )
 }
