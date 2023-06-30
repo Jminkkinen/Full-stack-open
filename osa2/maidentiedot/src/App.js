@@ -3,7 +3,7 @@ import axios from 'axios'
 
 const allcountries = 'https://studies.cs.helsinki.fi/restcountries/api/all'
 
-const api_key = process.env.API_KEY
+const api_key = process.env.REACT_APP_API_KEY
 
 const Filter = (props) => {
   return(
@@ -18,11 +18,8 @@ const Filter = (props) => {
 
 const Countryinfo = ({country}) => {
   const languages = Object.values(country.languages)
-  const flag = country.flags.png
-  const lat = country.capitalInfo.latlng[0]
-  const lon = country.capitalInfo.latlng[1]
   const coordurl = "http://api.openweathermap.org/data/2.5/"
-  let coordurlparams = new URL(`weather?lat=${lat}&lon=${lon}&appid=${apina_key}`, coordurl)
+  const coordurlparams = new URL(`weather?lat=${country.capitalInfo.latlng[0]}&lon=${country.capitalInfo.latlng[1]}&appid=${api_key}`, coordurl)
   const [weatherdata, setWeatherdata] = useState('')
   useEffect(() => {
     axios
@@ -31,10 +28,9 @@ const Countryinfo = ({country}) => {
         setWeatherdata(response.data)
       })
   }, [])
-  const temperature = weatherdata.main?.temp
-  const wind = weatherdata.wind?.speed
-  const icon = weatherdata?.weather[0]?.icon
-
+  if (!weatherdata) {
+    return null;
+  }
   return(
     <div>
       <h2>{country.name.common}</h2>
@@ -42,11 +38,11 @@ const Countryinfo = ({country}) => {
       <div>Area {country.area}</div>
       <p><b>languages</b></p>
       {languages.map(language => <div key={language}>&bull; {language}</div>)}
-      <p><img alt="" src={flag}/></p>
+      <p><img alt="" src={country.flags.png}/></p>
       <h3>Weather in {country.capital}</h3>
-      <div>temperature {temperature - 273.15} Celcius</div>
-      <p><img alt="" src={`https://openweathermap.org/img/wn/${icon}@2x.png`}/></p>
-      <p>wind {wind} m/s</p>
+      <div>temperature {weatherdata.main.temp - 273.15} Celcius</div>
+      <p><img alt="" src={`https://openweathermap.org/img/wn/${weatherdata?.weather[0]?.icon}@2x.png`}/></p>
+      <p>wind {weatherdata.wind.speed} m/s</p>
     </div>
   )
 }
